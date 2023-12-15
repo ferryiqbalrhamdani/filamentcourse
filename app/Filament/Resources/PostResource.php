@@ -42,7 +42,7 @@ class PostResource extends Resource
                 Section::make('Create a Post')
                     ->description('create posts over here.')
                     ->schema([
-                        TextInput::make('title')->numeric()->minValue(3)->maxValue(10)->required(),
+                        TextInput::make('title')->rules('min:3', 'max:10')->required(),
                         TextInput::make('slug')->unique(ignoreRecord: true)->required(),
 
                         Select::make('category_id')
@@ -74,13 +74,35 @@ class PostResource extends Resource
     {
         return $table
             ->columns([
-                ImageColumn::make('thumbnail'),
-                ColorColumn::make('color'),
-                TextColumn::make('title'),
-                TextColumn::make('slug'),
-                TextColumn::make('category.name'),
+                TextColumn::make('id')
+                    ->searchable()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                ImageColumn::make('thumbnail')
+                    ->toggleable(),
+                ColorColumn::make('color')
+                    ->toggleable(),
+                TextColumn::make('title')
+                    ->searchable()
+                    ->sortable()
+                    ->toggleable(),
+                TextColumn::make('slug')
+                    ->searchable()
+                    ->sortable()
+                    ->toggleable(),
+                TextColumn::make('category.name')
+                    ->searchable()
+                    ->sortable()
+                    ->toggleable(),
                 TextColumn::make('tags'),
-                CheckboxColumn::make('published'),
+                CheckboxColumn::make('published')
+                    ->toggleable(),
+                TextColumn::make('created_at')
+                    ->label('Publish on')
+                    ->date()
+                    ->searchable()
+                    ->sortable()
+                    ->toggleable(),
             ])
             ->filters([
                 //
