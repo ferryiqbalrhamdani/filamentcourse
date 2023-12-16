@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\PostResource\Pages;
 use App\Filament\Resources\PostResource\RelationManagers;
 use App\Filament\Resources\PostResource\RelationManagers\AuthorsRelationManager;
+use App\Filament\Resources\PostResource\RelationManagers\CommentsRelationManager;
 use App\Models\Category;
 use App\Models\Post;
 use Filament\Forms;
@@ -47,32 +48,34 @@ class PostResource extends Resource
     {
         return $form
             ->schema([
-                Tabs::make('Tambah Post Baru')->tabs([
-                    Tab::make('Tab 1')
-                        ->icon('heroicon-m-inbox')
-                        // ->iconPosition(IconPosition::After)
-                        ->badge(3)
-                        ->schema([
-                            TextInput::make('title')->rules('min:3', 'max:10')->required(),
-                            TextInput::make('slug')->unique(ignoreRecord: true)->required(),
+                Section::make('Create a Post')
+                    ->description('create posts over here.')
+                    ->schema([
+                        TextInput::make('title')->required(),
+                        TextInput::make('slug')->required(),
 
-                            Select::make('category_id')
-                                ->required()
-                                ->label('Category')
-                                ->relationship('category', 'name')
-                                ->searchable(),
+                        Select::make('category_id')
+                            ->required()
+                            ->label('Category')
+                            ->options(Category::all()->pluck('name', 'id'))
+                            ->searchable(),
 
-                            ColorPicker::make('color')->required(),
-                        ]),
-                    Tab::make('Content')->schema([
+                        ColorPicker::make('color')->required(),
+
                         MarkdownEditor::make('content')->required()->columnSpanFull(),
-                    ]),
-                    Tab::make('Meta')->schema([
-                        FileUpload::make('thumbnail')->disk('public')->directory('thumbnails'),
-                        TagsInput::make('tags')->required(),
-                        Checkbox::make('published'),
-                    ]),
-                ])->columnSpanFull()->activeTab(3)->persistTabInQueryString(),
+                    ])->columnSpan(2)->columns(2),
+                Group::make()->schema([
+                    Section::make('Image')
+                        ->collapsible()
+                        ->schema([
+                            FileUpload::make('thumbnail')->disk('public')->directory('thumbnails'),
+                        ])->columnSpan(1),
+                    Section::make('Meta')
+                        ->schema([
+                            TagsInput::make('tags')->required(),
+                            Checkbox::make('published')->required(),
+                        ])
+                ])
             ])->columns(3);
     }
 
@@ -143,7 +146,8 @@ class PostResource extends Resource
     public static function getRelations(): array
     {
         return [
-            AuthorsRelationManager::class
+            AuthorsRelationManager::class,
+            CommentsRelationManager::class
         ];
     }
 
