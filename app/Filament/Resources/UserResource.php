@@ -14,6 +14,7 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -48,12 +49,38 @@ class UserResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('id'),
-                TextColumn::make('name'),
-                TextColumn::make('email'),
+                TextColumn::make('id')->searchable()
+                    ->sortable()
+                    ->toggleable(),
+                TextColumn::make('name')->searchable()
+                    ->sortable()
+                    ->toggleable(),
+                TextColumn::make('email')->searchable()
+                    ->sortable()
+                    ->toggleable(),
+                TextColumn::make('role')
+                    ->badge()
+                    ->color(function (string $state): string {
+                        return match ($state) {
+                            'ADMIN' => 'danger',
+                            'EDITOR' => 'info',
+                            'USER' => 'success',
+                        };
+                    })
+                    ->searchable()
+                    ->sortable()
+                    ->toggleable(),
             ])
             ->filters([
-                //
+                SelectFilter::make('role')
+                    ->searchable()
+                    ->options([
+                        'ADMIN' => 'Admin',
+                        'EDITOR' => 'Editor',
+                        'USER' => 'User',
+                    ])
+                    ->preload()
+                    ->multiple()
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
