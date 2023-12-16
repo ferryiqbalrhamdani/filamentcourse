@@ -103,7 +103,7 @@ class PostResource extends Resource
                     ->searchable()
                     ->sortable()
                     ->toggleable(),
-                TextColumn::make('tags'),
+                TextColumn::make('tags')->badge(),
                 CheckboxColumn::make('published')
                     ->toggleable(),
                 TextColumn::make('created_at')
